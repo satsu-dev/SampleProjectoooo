@@ -1,35 +1,26 @@
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        Options -MultiViews
-    </IfModule>
-
-    #
-    # [Apache]ディレクトリにはスラッシュを付けるmod_dirの挙動
-    # https://goo.gl/IhcilI
-    #
-    <IfModule mod_dir.c>
-       DirectorySlash Off
+        Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
-    RewriteBase /
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
+    #RewriteCond %{REQUEST_FILENAME} !-d
+    #RewriteCond %{REQUEST_URI} (.+)/$
+    #RewriteRule ^ %1 [L,R=301]
 
-    #
-    # Laravel 5 URLの末尾/( スラッシュ )でリダイレクトさせない設定
-    # https://goo.gl/zaRBuh
-    #
-#    RewriteRule ^(.*)/$ /$1 [L,R=301]
-    RewriteRule ^(.*)/$ /$1
+    # Add Trailing Slash If Not A File...
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} (.+[^/])$
+    RewriteRule ^ %1/ [L,R=301]
 
     # Handle Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
